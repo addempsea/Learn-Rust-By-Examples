@@ -1,5 +1,9 @@
 [package]
+<<<<<<< HEAD
 name = "guessing-game"
+=======
+name = "hello_world"
+>>>>>>> a2e68240470b66aebc010005418be872693f66d0
 version = "0.1.0"
 authors = ["addempsea <babatundeademola4@gmail.com>"]
 edition = "2018"
@@ -7,4 +11,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+<<<<<<< HEAD
 rand = "0.5.5"
+=======
+>>>>>>> a2e68240470b66aebc010005418be872693f66d0
