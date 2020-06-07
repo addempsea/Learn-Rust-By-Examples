@@ -1,65 +1,107 @@
-#[derive(Debug)]
-struct User {
-    name: String,
-    age: u8,
-    is_admin: bool,
-    email: String
+struct Point {
+    x: f64,
+    y: f64,
 }
 
-enum Option<T> {
-    Some(T),
-    None,
-}
+// Implementation block, all `Point` methods go in here
+impl Point {
+    // This is a static method
+    // Static methods don't need to be called by an instance
+    // These methods are generally used as constructors
+    fn origin() -> Point {
+        Point { x: 0.0, y: 0.0 }
+    }
 
-enum IpAddr {
-    V4(String),
-    V6(String),
-}
-
-struct IpAddrt {
-    kind: IpAddr,
-    address: String,
-}
-
-impl User {
-    fn user_details(&self) -> u8{
-        self.age + 10
+    // Another static method, taking two arguments:
+    fn new(x: f64, y: f64) -> Point {
+        Point { x: x, y: y }
     }
 }
 
-enum Coin {
-    Penny,
-    Nickel,
-    Dime,
-    Quarter,
+struct Rectangle {
+    p1: Point,
+    p2: Point,
 }
 
-fn value_in_cents(coin: Coin) -> u8 {
-    match coin {
-        Coin::Penny => 1,
-        Coin::Nickel => 5,
-        Coin::Dime => 10,
-        Coin::Quarter => 25,
+impl Rectangle {
+    // This is an instance method
+    // `&self` is sugar for `self: &Self`, where `Self` is the type of the
+    // caller object. In this case `Self` = `Rectangle`
+    fn area(&self) -> f64 {
+        // `self` gives access to the struct fields via the dot operator
+        let Point { x: x1, y: y1 } = self.p1;
+        let Point { x: x2, y: y2 } = self.p2;
+
+        // `abs` is a `f64` method that returns the absolute value of the
+        // caller
+        ((x1 - x2) * (y1 - y2)).abs()
+    }
+
+    fn perimeter(&self) -> f64 {
+        let Point { x: x1, y: y1 } = self.p1;
+        let Point { x: x2, y: y2 } = self.p2;
+
+        2.0 * ((x1 - x2).abs() + (y1 - y2).abs())
+    }
+
+    // This method requires the caller object to be mutable
+    // `&mut self` desugars to `self: &mut Self`
+    fn translate(&mut self, x: f64, y: f64) {
+        self.p1.x += x;
+        self.p2.x += x;
+
+        self.p1.y += y;
+        self.p2.y += y;
+    }
+}
+
+// `Pair` owns resources: two heap allocated integers
+struct Pair(Box<i32>, Box<i32>);
+
+impl Pair {
+    // This method "consumes" the resources of the caller object
+    // `self` desugars to `self: Self`
+    fn destroy(self) {
+        // Destructure `self`
+        let Pair(first, second) = self;
+
+        println!("Destroying Pair({}, {})", first, second);
+
+        // `first` and `second` go out of scope and get freed
     }
 }
 
 fn main() {
-    let user1 = User {
-        name: String::from("Ademola"),
-        age: 12,
-        is_admin: false,
-        email: String::from("demola@enyata.com")
+    let rectangle = Rectangle {
+        // Static methods are called using double colons
+        p1: Point::origin(),
+        p2: Point::new(3.0, 4.0),
     };
-    let demo: i32 = 55;
-    let _home = IpAddr::V4(String::from("demo")) ;
-    
-   let _age_in_ten = user1.user_details();
 
-    // let some_five: Option<i8> = Some(5);
-    // let non: Option<i32> = None;
-    let das = Coin::Dime;
-    let vad: u8 = value_in_cents(das);
-    println!("{}", vad)
+    // Instance methods are called using the dot operator
+    // Note that the first argument `&self` is implicitly passed, i.e.
+    // `rectangle.perimeter()` === `Rectangle::perimeter(&rectangle)`
+    println!("Rectangle perimeter: {}", rectangle.perimeter());
+    println!("Rectangle area: {}", rectangle.area());
+
+    let mut square = Rectangle {
+        p1: Point::origin(),
+        p2: Point::new(1.0, 1.0),
+    };
+
+    // Error! `rectangle` is immutable, but this method requires a mutable
+    // object
+    //rectangle.translate(1.0, 0.0);
+    // TODO ^ Try uncommenting this line
+
+    // Okay! Mutable objects can call mutable methods
+    square.translate(1.0, 1.0);
+
+    let pair = Pair(Box::new(1), Box::new(2));
+
+    pair.destroy();
+
+    // Error! Previous `destroy` call "consumed" `pair`
+    //pair.destroy();
+    // TODO ^ Try uncommenting this line
 }
-
-
